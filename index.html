@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Flora — Galaxia de flores</title>
-  <meta name="description" content="Una galaxia de miles de flores amarillas que controlas con tus manos mediante visión artificial en tiempo real." />
+  <meta name="description" content="Una galaxia de miles de flores amarillas alrededor de un agujero negro, controlada con más de quince gestos de tus manos mediante visión artificial." />
   <meta name="theme-color" content="#050507" />
   <meta property="og:title" content="Flora — Galaxia de flores" />
   <meta property="og:description" content="Experiencia interactiva: una galaxia de flores amarillas guiada por el movimiento de tus manos." />
@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
   <script type="importmap">
     {
@@ -53,19 +53,31 @@
     <symbol id="i-contract" viewBox="0 0 24 24"><path d="M4 4l5 5M9 5v4H5M20 4l-5 5M15 5v4h4M4 20l5-5M9 19v-4H5M20 20l-5-5M15 19v-4h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></symbol>
     <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3c.5 4.2 2.8 6.5 7 7-4.2.5-6.5 2.8-7 7-.5-4.2-2.8-6.5-7-7 4.2-.5 6.5-2.8 7-7z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /><path d="M19 17v4M17 19h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></symbol>
     <symbol id="i-orbit" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5" transform="rotate(-18 12 12)" /><circle cx="12" cy="12" r="2.2" fill="none" stroke="currentColor" stroke-width="1.5" /></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M12 2.5v5M12 16.5v5M2.5 12h5M16.5 12h5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /><circle cx="12" cy="12" r="1.2" fill="currentColor" /></symbol>
+    <symbol id="i-warp" viewBox="0 0 24 24"><path d="M4 7l5 5-5 5M12 7l5 5-5 5M20 6v12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+    <symbol id="i-holo" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 12l8-4.5M12 12v9M12 12 4 7.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /></symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M4 12h16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></symbol>
+    <symbol id="i-nova" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M12 2v5M12 17v5M2 12h5M17 12h5M5 5l3.4 3.4M15.6 15.6 19 19M5 19l3.4-3.4M15.6 8.4 19 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></symbol>
+    <symbol id="i-repulsor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5" /><circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="1.5" /><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 3" /></symbol>
+    <symbol id="i-energy" viewBox="0 0 24 24"><path d="M13 2 4.5 14H11l-1 8 8.5-12H12z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /></symbol>
+    <symbol id="i-hole" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="currentColor" /><ellipse cx="12" cy="12" rx="10" ry="3.6" fill="none" stroke="currentColor" stroke-width="1.5" transform="rotate(-15 12 12)" /></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.9 1.2-1.7-.5-1 .2-2.1 1.3-2.1H17a4 4 0 0 0 4-4C21 7.4 17 3 12 3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /><circle cx="7.5" cy="11" r="1.2" fill="currentColor" /><circle cx="10.5" cy="7" r="1.2" fill="currentColor" /><circle cx="15" cy="7.5" r="1.2" fill="currentColor" /></symbol>
   </svg>
 
   <canvas id="stage" aria-label="Galaxia de flores interactiva"></canvas>
+  <canvas id="holo" class="holo-layer" aria-hidden="true"></canvas>
+  <div class="holo-grid" aria-hidden="true"></div>
+  <div class="frame hud" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
 
   <!-- Introducción -->
   <section class="intro" id="intro" aria-labelledby="intro-title">
     <div class="intro__card">
       <svg class="intro__mark" aria-hidden="true"><use href="#i-flora" /></svg>
-      <p class="eyebrow">Experiencia interactiva · Visión artificial</p>
+      <p class="eyebrow">Interfaz holográfica · Visión artificial</p>
       <h1 class="intro__title" id="intro-title">Flora</h1>
-      <p class="intro__subtitle">Galaxia de flores</p>
+      <p class="intro__subtitle">Galaxia de flores · Singularidad</p>
       <span class="rule" aria-hidden="true"></span>
-      <p class="intro__lead">Miles de flores amarillas orbitando en el espacio, guiadas por el movimiento de tus manos.</p>
+      <p class="intro__lead">Miles de flores amarillas orbitando un agujero negro. Controla la gravedad, la luz y el tiempo con más de quince gestos de tus manos.</p>
       <div class="intro__actions">
         <button class="btn btn--primary" id="btn-start" type="button">
           <svg aria-hidden="true"><use href="#i-video" /></svg>
@@ -74,9 +86,9 @@
         <button class="btn btn--ghost" id="btn-explore" type="button">Explorar sin cámara</button>
       </div>
       <ol class="steps" id="steps" hidden>
-        <li data-step="camera"><span class="steps__icon"></span><span>Cámara</span><span class="steps__state">En espera</span></li>
-        <li data-step="model"><span class="steps__icon"></span><span>Modelo de visión artificial</span><span class="steps__state">En espera</span></li>
-        <li data-step="ready"><span class="steps__icon"></span><span>Calibración</span><span class="steps__state">En espera</span></li>
+        <li data-step="camera"><span class="steps__icon"></span><span>Sensores ópticos</span><span class="steps__state">En espera</span></li>
+        <li data-step="model"><span class="steps__icon"></span><span>Red neuronal de manos</span><span class="steps__state">En espera</span></li>
+        <li data-step="ready"><span class="steps__icon"></span><span>Calibración holográfica</span><span class="steps__state">En espera</span></li>
       </ol>
       <p class="intro__error" id="intro-error" role="alert" hidden></p>
       <p class="intro__privacy"><svg aria-hidden="true"><use href="#i-lock" /></svg>Procesamiento 100 % local. Ninguna imagen sale de tu dispositivo.</p>
@@ -90,7 +102,7 @@
       <svg class="brand__mark" aria-hidden="true"><use href="#i-flora" /></svg>
       <div>
         <span class="brand__name">Flora</span>
-        <span class="brand__sub">Galaxia de flores</span>
+        <span class="brand__sub">Interfaz holográfica · <span id="theme-name">Sol dorado</span></span>
       </div>
     </div>
     <dl class="telemetry glass" aria-label="Telemetría">
@@ -106,19 +118,41 @@
   <aside class="guide glass hud" aria-label="Guía de gestos">
     <p class="eyebrow guide__title">Gestos</p>
     <ul class="guide__list" data-for="hands">
-      <li data-gesture="dual"><svg aria-hidden="true"><use href="#i-zoom" /></svg><div><strong>Dos manos</strong><span>Separa para acercar · gira para rotar</span></div></li>
+      <li class="guide__group">Dos manos</li>
+      <li data-gesture="dual"><svg aria-hidden="true"><use href="#i-zoom" /></svg><div><strong>Separar · girar</strong><span>Zoom y rotación</span></div></li>
+      <li data-gesture="charge"><svg aria-hidden="true"><use href="#i-energy" /></svg><div><strong>Manos juntas</strong><span>Carga energía · sepáralas para liberar</span></div></li>
+      <li data-gesture="collapse"><svg aria-hidden="true"><use href="#i-hole" /></svg><div><strong>Dos puños</strong><span>Colapso · suelta para un Big Bang</span></div></li>
+      <li class="guide__group">Una mano</li>
       <li data-gesture="open"><svg aria-hidden="true"><use href="#i-bloom" /></svg><div><strong>Mano abierta</strong><span>La galaxia florece</span></div></li>
       <li data-gesture="fist"><svg aria-hidden="true"><use href="#i-contract" /></svg><div><strong>Puño</strong><span>La galaxia se recoge</span></div></li>
+      <li data-gesture="supernova"><svg aria-hidden="true"><use href="#i-nova" /></svg><div><strong>Puño → abrir de golpe</strong><span>Supernova</span></div></li>
+      <li data-gesture="repulsor"><svg aria-hidden="true"><use href="#i-repulsor" /></svg><div><strong>Empujar la palma</strong><span>Repulsor · onda de choque</span></div></li>
+      <li data-gesture="point"><svg aria-hidden="true"><use href="#i-target" /></svg><div><strong>Apuntar con el índice</strong><span>Pozo de gravedad</span></div></li>
       <li data-gesture="pinch"><svg aria-hidden="true"><use href="#i-spark" /></svg><div><strong>Pellizco</strong><span>Ondas de resplandor</span></div></li>
-      <li data-gesture="swipe"><svg aria-hidden="true"><use href="#i-orbit" /></svg><div><strong>Barrido rápido</strong><span>Impulsa la rotación</span></div></li>
+      <li data-gesture="horns"><svg aria-hidden="true"><use href="#i-warp" /></svg><div><strong>Cuernos 🤘</strong><span>Salto al hiperespacio</span></div></li>
+      <li data-gesture="swipe"><svg aria-hidden="true"><use href="#i-orbit" /></svg><div><strong>Barrido lateral</strong><span>Impulsa la rotación</span></div></li>
+      <li data-gesture="theme"><svg aria-hidden="true"><use href="#i-palette" /></svg><div><strong>Barrido vertical</strong><span>Cambia la paleta cósmica</span></div></li>
+      <li data-gesture="shaka"><svg aria-hidden="true"><use href="#i-holo" /></svg><div><strong>Shaka 🤙</strong><span>Modo holograma</span></div></li>
+      <li data-gesture="thumbsup"><svg aria-hidden="true"><use href="#i-scan" /></svg><div><strong>Pulgar arriba</strong><span>Escaneo espectral</span></div></li>
       <li data-gesture="victory"><svg aria-hidden="true"><use href="#i-aperture" /></svg><div><strong>Señal de paz</strong><span>Mantén para capturar</span></div></li>
     </ul>
     <ul class="guide__list" data-for="pointer" hidden>
       <li><svg aria-hidden="true"><use href="#i-orbit" /></svg><div><strong>Arrastrar</strong><span>Orbitar la galaxia</span></div></li>
       <li><svg aria-hidden="true"><use href="#i-zoom" /></svg><div><strong>Rueda · pellizco táctil</strong><span>Acercar y alejar</span></div></li>
       <li><svg aria-hidden="true"><use href="#i-spark" /></svg><div><strong>Mantener pulsado</strong><span>Ondas de resplandor</span></div></li>
+      <li><svg aria-hidden="true"><use href="#i-nova" /></svg><div><strong>Doble clic · N</strong><span>Supernova</span></div></li>
+      <li><svg aria-hidden="true"><use href="#i-hole" /></svg><div><strong>Mantener X</strong><span>Colapso gravitacional</span></div></li>
+      <li><svg aria-hidden="true"><use href="#i-warp" /></svg><div><strong>Mantener W</strong><span>Hiperespacio</span></div></li>
+      <li><svg aria-hidden="true"><use href="#i-palette" /></svg><div><strong>T</strong><span>Cambiar paleta</span></div></li>
+      <li><svg aria-hidden="true"><use href="#i-holo" /></svg><div><strong>G · J</strong><span>Holograma · escaneo</span></div></li>
       <li><svg aria-hidden="true"><use href="#i-bloom" /></svg><div><strong>Flechas ↑ ↓</strong><span>Floración</span></div></li>
     </ul>
+  </aside>
+
+  <!-- Registro de eventos -->
+  <aside class="log glass hud" aria-label="Registro de eventos">
+    <p class="eyebrow">Registro</p>
+    <ol id="log"></ol>
   </aside>
 
   <!-- Indicador de zoom -->
@@ -126,6 +160,16 @@
     <span class="gauge__value">×<b id="g-value">1.0</b></span>
     <div class="gauge__track"><div class="gauge__fill" id="g-fill"></div><div class="gauge__thumb" id="g-thumb"></div></div>
     <span class="gauge__cap">Zoom</span>
+  </div>
+
+  <!-- Marcador de la singularidad -->
+  <div class="singularity hud" id="singularity" aria-hidden="true">
+    <svg viewBox="-50 -50 100 100">
+      <circle class="sg-ring" r="46" />
+      <circle class="sg-dash" r="40" />
+      <path class="sg-ticks" d="M0-50v8M0 42v8M-50 0h8M42 0h8" />
+    </svg>
+    <span class="singularity__label">Singularidad<b id="sg-value">Rs 0.90</b></span>
   </div>
 
   <!-- Gesto actual -->
@@ -136,9 +180,11 @@
 
   <!-- Controles -->
   <nav class="dock glass hud" aria-label="Controles">
-    <button class="dock__btn" type="button" data-action="sound" aria-pressed="false" aria-label="Sonido ambiental" data-tip="Sonido ambiental · M"><svg aria-hidden="true"><use href="#i-sound-off" /></svg></button>
+    <button class="dock__btn" type="button" data-action="sound" aria-pressed="false" aria-label="Sonido ambiental" data-tip="Sonido · M"><svg aria-hidden="true"><use href="#i-sound-off" /></svg></button>
     <button class="dock__btn" type="button" data-action="camera" aria-pressed="false" aria-label="Cámara" data-tip="Activar cámara · C"><svg aria-hidden="true"><use href="#i-video" /></svg></button>
     <button class="dock__btn" type="button" data-action="capture" aria-label="Guardar imagen" data-tip="Guardar imagen · S"><svg aria-hidden="true"><use href="#i-aperture" /></svg></button>
+    <button class="dock__btn" type="button" data-action="holo" aria-pressed="false" aria-label="Modo holograma" data-tip="Holograma · G"><svg aria-hidden="true"><use href="#i-holo" /></svg></button>
+    <button class="dock__btn" type="button" data-action="theme" aria-label="Cambiar paleta" data-tip="Paleta · T"><svg aria-hidden="true"><use href="#i-palette" /></svg></button>
     <span class="dock__sep" aria-hidden="true"></span>
     <button class="dock__btn" type="button" data-action="fullscreen" aria-label="Pantalla completa" data-tip="Pantalla completa · F"><svg aria-hidden="true"><use href="#i-expand" /></svg></button>
     <button class="dock__btn" type="button" data-action="help" aria-label="Ayuda" data-tip="Ayuda · ?"><svg aria-hidden="true"><use href="#i-help" /></svg></button>
@@ -151,13 +197,43 @@
     <figcaption><span class="live-dot"></span>Visión IA<span class="preview__status" id="preview-status">buscando manos</span></figcaption>
   </figure>
 
-  <!-- Cursores de las manos -->
-  <div class="cursors" aria-hidden="true">
+  <!-- Retículas de las manos, orbe de energía y ondas -->
+  <div class="cursors" aria-hidden="true" id="cursors">
     <svg class="link" id="link"><line id="link-line" /></svg>
     <div class="link-label" id="link-label">×1.00</div>
-    <div class="cursor"><svg viewBox="0 0 60 60"><circle class="cursor__halo" cx="30" cy="30" r="26" /><circle class="cursor__ring" cx="30" cy="30" r="26" /><circle class="cursor__progress" cx="30" cy="30" r="26" /></svg><span class="cursor__dot"></span></div>
-    <div class="cursor"><svg viewBox="0 0 60 60"><circle class="cursor__halo" cx="30" cy="30" r="26" /><circle class="cursor__ring" cx="30" cy="30" r="26" /><circle class="cursor__progress" cx="30" cy="30" r="26" /></svg><span class="cursor__dot"></span></div>
+    <div class="orb" id="orb"><span class="orb__core"></span><span class="orb__ring"></span><span class="orb__ring orb__ring--b"></span><span class="orb__value" id="orb-value">0%</span></div>
+    <div class="cursor">
+      <svg viewBox="-50 -50 100 100">
+        <circle class="r-halo" r="26" />
+        <circle class="r-outer" r="44" />
+        <circle class="r-mid" r="35" />
+        <path class="r-ticks" d="M0-49v9M0 40v9M-49 0h9M40 0h9" />
+        <circle class="r-core" r="26" />
+        <circle class="r-progress" r="26" />
+      </svg>
+      <span class="cursor__dot"></span>
+      <span class="cursor__label"><b>MANO</b><i>—</i></span>
+    </div>
+    <div class="cursor">
+      <svg viewBox="-50 -50 100 100">
+        <circle class="r-halo" r="26" />
+        <circle class="r-outer" r="44" />
+        <circle class="r-mid" r="35" />
+        <path class="r-ticks" d="M0-49v9M0 40v9M-49 0h9M40 0h9" />
+        <circle class="r-core" r="26" />
+        <circle class="r-progress" r="26" />
+      </svg>
+      <span class="cursor__dot"></span>
+      <span class="cursor__label"><b>MANO</b><i>—</i></span>
+    </div>
   </div>
+
+  <!-- Escaneo espectral -->
+  <div class="sweep" id="sweep" aria-hidden="true"></div>
+  <section class="scan glass" id="scan" hidden aria-live="polite">
+    <p class="eyebrow">Análisis espectral</p>
+    <ol id="scan-lines"></ol>
+  </section>
 
   <div class="toast glass" id="toast" role="status"><span class="toast__dot"></span><span id="toast-text"></span></div>
 
@@ -168,27 +244,35 @@
     <h2 id="help-title">Cómo interactuar</h2>
     <div class="help__grid">
       <section>
-        <h3>Con tus manos</h3>
+        <h3>Una mano</h3>
         <ul>
-          <li><b>Dos manos</b> — sepáralas para acercarte, júntalas para alejarte. Gíralas como un volante para rotar la galaxia.</li>
-          <li><b>Mano abierta</b> — la galaxia florece y se expande.</li>
+          <li><b>Mano abierta</b> — la galaxia florece.</li>
           <li><b>Puño</b> — la galaxia se recoge como un capullo.</li>
-          <li><b>Pellizco</b> (pulgar + índice) — ondas de luz recorren las flores.</li>
-          <li><b>Barrido rápido</b> — impulsa la rotación.</li>
+          <li><b>Puño → abrir de golpe</b> — supernova.</li>
+          <li><b>Empujar la palma</b> hacia la cámara — repulsor.</li>
+          <li><b>Apuntar con el índice</b> — las flores caen en tu pozo de gravedad.</li>
+          <li><b>Pellizco</b> — ondas de luz.</li>
+          <li><b>Cuernos 🤘</b> — salto al hiperespacio.</li>
+          <li><b>Barrido lateral</b> — impulsa la rotación. <b>Vertical</b> — cambia la paleta.</li>
+          <li><b>Shaka 🤙</b> — modo holograma. <b>Pulgar arriba</b> — escaneo.</li>
           <li><b>Señal de paz</b> sostenida — guarda una imagen.</li>
         </ul>
       </section>
       <section>
-        <h3>Teclado</h3>
+        <h3>Dos manos</h3>
+        <ul>
+          <li><b>Separar / juntar</b> — acercar y alejar.</li>
+          <li><b>Girar como un volante</b> — rotar la galaxia.</li>
+          <li><b>Manos casi juntas</b> — carga un orbe de energía; sepáralas para liberarlo.</li>
+          <li><b>Dos puños</b> — todo cae en la singularidad; suéltalos para un Big Bang.</li>
+        </ul>
+        <h3 class="help__sub">Teclado</h3>
         <ul class="keys">
-          <li><kbd>F</kbd>Pantalla completa</li>
-          <li><kbd>S</kbd>Guardar imagen</li>
-          <li><kbd>M</kbd>Sonido ambiental</li>
-          <li><kbd>C</kbd>Cámara</li>
-          <li><kbd>H</kbd>Ocultar interfaz</li>
-          <li><kbd>R</kbd>Restablecer vista</li>
-          <li><kbd>↑</kbd><kbd>↓</kbd>Floración</li>
-          <li><kbd>Espacio</kbd>Resplandor</li>
+          <li><kbd>F</kbd>Pantalla completa · <kbd>S</kbd>Imagen</li>
+          <li><kbd>M</kbd>Sonido · <kbd>C</kbd>Cámara · <kbd>H</kbd>Interfaz</li>
+          <li><kbd>N</kbd>Supernova · <kbd>X</kbd>Colapso · <kbd>W</kbd>Hiperespacio</li>
+          <li><kbd>T</kbd>Paleta · <kbd>G</kbd>Holograma · <kbd>J</kbd>Escaneo</li>
+          <li><kbd>↑</kbd><kbd>↓</kbd>Floración · <kbd>Espacio</kbd>Resplandor · <kbd>R</kbd>Vista</li>
         </ul>
       </section>
     </div>

@@ -1,6 +1,7 @@
-# Prompt: Flora — Galaxia de flores controlada con las manos (versión premium)
+# Prompt: Flora — Galaxia de flores controlada con las manos (versión holográfica)
 
 Copia y pega este prompt completo en Claude (o cualquier IA de código):
+
 
 ---
 
@@ -116,5 +117,92 @@ package.json (scripts start/test) · README.md profesional
 - Código completo de todos los archivos, comentado en español, limpio y consistente.
 - `npm start` para servir en localhost y `npm test` para las pruebas del motor de gestos.
 - README profesional con características, gestos, atajos, ejecución, arquitectura, pruebas, compatibilidad y privacidad.
+
+## 10. Ampliación holográfica (estilo Tony Stark) y agujero negro
+
+### Singularidad central (`blackhole.js`)
+
+- **Sombra**: un disco negro que siempre mira a la cámara y escribe profundidad.
+- **Disco de acreción**: `RingGeometry` con un shader de ruido fbm periódico en el ángulo.
+  - Rotación kepleriana, con dos capas que se relevan para que el patrón no se enrolle.
+  - Gradiente de temperatura: blanco → dorado → rojo.
+  - Beaming relativista: el lado que se acerca a la cámara brilla más.
+- **Billboard aditivo** con el anillo de fotones y el arco de la cara oculta del disco curvada por la gravedad (más visible de canto).
+- **Pase de lente gravitacional** antes del bloom, que deforma el fondo alrededor del horizonte.
+- **Máscara posterior al bloom** para que la sombra quede negra de verdad.
+
+### Galaxia
+
+- **Caída en espiral**: el 28 % de las flores y el 45 % del polen caen hacia el horizonte con una vida cíclica (`fract`). Aceleran al final, se encogen, se calientan hasta brillar como plasma y renacen.
+- **9 especies de flores** en un atlas 3×3, cada una con nervaduras, sombra en la base, borde iluminado, estambres y pecas:
+  - margarita doble;
+  - ranúnculo en capas;
+  - girasol;
+  - cosmos;
+  - dalia;
+  - loto;
+  - lirio estrella;
+  - crisantemo araña;
+  - flor cósmica translúcida.
+- **Efectos por flor**: volteo 3D (elipse animada) y destellos especulares.
+- **Bandas de polvo oscuro.**
+- **5 paletas** (disco, polen, nebulosas; las flores siempre amarillas): Sol dorado, Eclipse carmesí, Nebulosa cuántica, Aurora boreal y Plasma violeta.
+- **Uniforms** para colapso, explosión, pozo de gravedad (punto + intensidad) y onda de choque (centro + progreso).
+
+### Gestos nuevos
+
+Todos con pruebas en Node.
+
+**Posturas de una mano** (por dedos extendidos, pulgar hacia fuera y pulgar hacia arriba):
+
+| Gesto | Efecto |
+|---|---|
+| ☝️ Índice | Pozo de gravedad bajo la punta del dedo. Rayo desde la cámara al plano de la galaxia; las flores giran a su alrededor. |
+| 🤘 Cuernos | Hiperespacio: desenfoque radial, +28° de FOV, estrellas aceleradas |
+| 🤙 Shaka | Modo holograma: cuadrícula, marco, tinte cian y líneas de barrido |
+| 👍 Pulgar arriba | Escaneo espectral: barrido de pantalla + panel que se escribe línea a línea |
+
+**Gestos dinámicos:**
+
+| Gesto | Cómo se detecta | Efecto |
+|---|---|---|
+| ✊→✋ Supernova | Puño ≥ 0,35 s que se abre en < 0,35 s | Explosión |
+| 🫸 Repulsor | La palma crece un 28 % en ~0,2 s (empuje hacia la cámara) | Onda de choque desde la mano |
+| 👋 Barrido vertical | Movimiento vertical rápido | Cambia de paleta |
+
+**Dos manos:**
+
+| Gesto | Efecto |
+|---|---|
+| 🙏 Manos casi juntas | Carga un orbe de energía; al separarlas, descarga una onda expansiva |
+| ✊✊ Dos puños | Colapso: todo cae al horizonte, que crece; al soltar tras 0,8 s, Big Bang |
+
+### HUD holográfico (cian `#7FE9FF` sobre el dorado)
+
+- Esqueleto de las manos a pantalla completa con coordenadas del índice (JetBrains Mono).
+- Retículas de mira con anillos que giran en sentidos opuestos, marcas y etiqueta "MANO D · ABIERTA · 82 %".
+- Orbe de energía con núcleo y anillos.
+- Anillos expansivos en pantalla.
+- Marcador de la singularidad con su radio.
+- Registro de eventos con hora.
+- Panel de análisis y marco de esquinas.
+- La guía de gestos se desplaza sola hasta el gesto activo.
+
+### Atajos de teclado
+
+Para demostrar todo sin cámara:
+
+| Tecla | Efecto |
+|---|---|
+| N / doble clic | Supernova |
+| X (mantener) | Colapso → Big Bang |
+| W (mantener) | Hiperespacio |
+| T | Paleta |
+| G | Holograma |
+| J | Escaneo |
+
+### Sonido generativo
+
+Boom de supernova, descarga del repulsor, soplido del hiperespacio y pitidos de interfaz.
 
 ---

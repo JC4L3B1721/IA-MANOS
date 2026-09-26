@@ -132,4 +132,85 @@ export class AmbientAudio {
     this._tone(1760, 0.05, 0.5, 'triangle');
     this._tone(2637, 0.03, 0.8);
   }
+
+  _noise(seconds) {
+    const length = Math.floor(this.ctx.sampleRate * seconds);
+    const buffer = this.ctx.createBuffer(1, length, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
+    const source = this.ctx.createBufferSource();
+    source.buffer = buffer;
+    return source;
+  }
+
+  // Barrido de frecuencia con envolvente: base de los efectos de ciencia ficción
+  _sweep({ type = 'sine', from, to, peak, duration, filter = null }) {
+    const ctx = this.ctx;
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    osc.type = type;
+    osc.frequency.setValueAtTime(from, t);
+    osc.frequency.exponentialRampToValueAtTime(to, t + duration);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(peak, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+    let node = osc;
+    if (filter) {
+      const f = ctx.createBiquadFilter();
+      f.type = 'lowpass';
+      f.frequency.value = filter;
+      osc.connect(f);
+      node = f;
+    }
+    node.connect(gain);
+    gain.connect(this.master);
+    gain.connect(this.reverb);
+    osc.start(t);
+    osc.stop(t + duration + 0.05);
+  }
+
+  _burst(duration, peak, cutoffFrom, cutoffTo) {
+    const ctx = this.ctx;
+    const t = ctx.currentTime;
+    const noise = this._noise(duration);
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(cutoffFrom, t);
+    filter.frequency.exponentialRampToValueAtTime(cutoffTo, t + duration);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(peak, t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+    noise.connect(filter).connect(gain);
+    gain.connect(this.master);
+    gain.connect(this.reverb);
+    noise.start(t);
+  }
+
+  // Supernova / Big Bang: impacto grave con cola de ruido
+  boom() {
+    if (!this.enabled) return;
+    this._sweep({ from: 110, to: 28, peak: 0.35, duration: 1.8 });
+    this._burst(2.2, 0.25, 2400, 60);
+  }
+
+  // Repulsor: descarga eléctrica descendente
+  zap() {
+    if (!this.enabled) return;
+    this._sweep({ type: 'sawtooth', from: 1400, to: 160, peak: 0.08, duration: 0.35, filter: 2600 });
+    this._burst(0.4, 0.12, 6000, 400);
+  }
+
+  // Hiperespacio: soplido ascendente
+  whoosh() {
+    if (!this.enabled) return;
+    this._burst(1.4, 0.16, 300, 5000);
+    this._sweep({ from: 60, to: 240, peak: 0.12, duration: 1.2 });
+  }
+
+  // Pitidos de interfaz holográfica
+  beep(count = 2) {
+    if (!this.enabled) return;
+    for (let i = 0; i < count; i++) setTimeout(() => this._tone(1318.51 + i * 440, 0.035, 0.18, 'square'), i * 90);
+  }
 }

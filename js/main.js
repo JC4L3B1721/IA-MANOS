@@ -1,14 +1,15 @@
 // Flora · Galaxia de flores — punto de entrada.
-// Une el render (Three.js), la visión artificial (MediaPipe), el motor de gestos y la interfaz.
+// Une el render (Three.js), la visión artificial (MediaPipe), el motor de gestos y la interfaz holográfica.
 import * as THREE from 'three';
-import { QUALITY, GALAXY, CAMERA, DEBUG } from './config.js';
+import { QUALITY, GALAXY, CAMERA, BLACK_HOLE, THEMES, DEBUG } from './config.js';
 import { FlowerGalaxy } from './galaxy.js';
+import { BlackHole } from './blackhole.js';
 import { Starfield } from './starfield.js';
 import { PostFX } from './postfx.js';
 import { HandTracker } from './hand-tracker.js';
 import { GestureEngine, GESTURES } from './gestures.js';
 import { AmbientAudio } from './audio.js';
-import { UI } from './ui.js';
+import { UI, GESTURE_COPY } from './ui.js';
 
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 // Suavizado exponencial independiente de los FPS
@@ -36,13 +37,23 @@ scene.background = new THREE.Color('#040406');
 const camera = new THREE.PerspectiveCamera(CAMERA.fov, window.innerWidth / window.innerHeight, 0.05, 800);
 
 const galaxy = new FlowerGalaxy(QUALITY, GALAXY);
+const blackHole = new BlackHole(BLACK_HOLE);
 const stars = new Starfield(QUALITY.stars);
-scene.add(stars.object, galaxy.object);
+scene.add(stars.object, blackHole.object, galaxy.object);
 const fx = new PostFX(renderer, scene, camera);
 
 const audio = new AmbientAudio();
 const gestures = new GestureEngine({ minZoom: CAMERA.minZoom, maxZoom: CAMERA.maxZoom, defaultBloom: GALAXY.defaultBloom });
 const tracker = new HandTracker(ui.video);
+
+// Paletas convertidas a THREE.Color para interpolarlas suavemente
+const themes = THEMES.map((t) => ({
+  name: t.name,
+  ...Object.fromEntries(
+    ['hot', 'warm', 'cool', 'pollen', 'nebula', 'heat', 'halo'].map((key) => [key, new THREE.Color(...t[key])]),
+  ),
+}));
+let themeIndex = 0;
 
 let pixelRatio = Math.min(window.devicePixelRatio || 1, QUALITY.maxPixelRatio);
 let framing = 1; // factor de distancia según la proporción de la pantalla
@@ -51,8 +62,8 @@ function resize() {
   const w = window.innerWidth;
   const h = window.innerHeight;
   camera.aspect = w / h;
-  framing = Math.pow(Math.max(1, 1.1 / camera.aspect), 0.9);
   camera.updateProjectionMatrix();
+  framing = Math.pow(Math.max(1, 1.1 / camera.aspect), 0.9);
   renderer.setPixelRatio(pixelRatio);
   renderer.setSize(w, h, false);
   fx.setSize(w, h, pixelRatio);
@@ -65,23 +76,111 @@ resize();
 // ---------------------------------------------------------------------------
 // Estado de la vista (valores suavizados que se dibujan)
 // ---------------------------------------------------------------------------
-const view = { zoom: 0.5, bloom: GALAXY.defaultBloom, yaw: 0, pitch: 0, twist: 0, tilt: 0, pulse: 0, spin: 0, autoYaw: 0.6 };
-const manual = { bloom: GALAXY.defaultBloom, pulse: 0 };
+const view = {
+  zoom: 0.5, bloom: GALAXY.defaultBloom, yaw: 0, pitch: 0, twist: 0, tilt: 0, pulse: 0,
+  spin: 0, autoYaw: 0.6, warp: 0, collapse: 0, holo: 0, well: 0,
+};
+const manual = { bloom: GALAXY.defaultBloom, pulse: 0, warp: 0, collapse: 0 };
+const burst = { t: Infinity, power: 1 }; // supernova / Big Bang
+const shock = { t: Infinity, power: 1, uv: new THREE.Vector2(), world: new THREE.Vector3() };
+const well = { screen: new THREE.Vector2(0.5, 0.5), world: new THREE.Vector3(), uniform: new THREE.Vector4() };
+const shockUniform = new THREE.Vector4(0, 0, 0, -1);
+const raycaster = new THREE.Raycaster();
+const galaxyPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+const tmp = { v: new THREE.Vector3(), ndc: new THREE.Vector2(), right: new THREE.Vector3() };
+
 gestures.state.zoom = 0.7; // vista lejana durante la introducción
 
 let started = false;
 let handsActive = false;
 let enabling = false;
+let holoOn = false;
 let captureRequested = false;
 let flash = 0;
 let lastHandsAt = performance.now();
 let simulated = null; // solo en modo ?debug
+
+// Punto del plano de la galaxia bajo una posición de pantalla (0..1)
+function screenToGalaxy(x, y, target) {
+  tmp.ndc.set(x * 2 - 1, -(y * 2 - 1));
+  raycaster.setFromCamera(tmp.ndc, camera);
+  if (!raycaster.ray.intersectPlane(galaxyPlane, target)) raycaster.ray.at(camera.position.length(), target);
+  return target;
+}
+
+function burstCurve() {
+  // Sube en 0,15 s y se apaga lentamente
+  if (burst.t === Infinity) return 0;
+  const v = burst.t < 0.15 ? burst.t / 0.15 : Math.exp(-(burst.t - 0.15) * 1.1);
+  return v * burst.power;
+}
+
+function triggerBurst(power = 1, label = 'supernova') {
+  burst.t = 0;
+  burst.power = power;
+  flash = Math.max(flash, 0.35 * power);
+  audio.boom();
+  ui.flashGesture(label);
+  ui.log(GESTURE_COPY[label][0]);
+  const c = projectToScreen(new THREE.Vector3());
+  ui.shock(c.x, c.y, 'gold');
+}
+
+function triggerShock(x, y, power = 1, label = 'repulsor') {
+  shock.t = 0;
+  shock.power = power;
+  shock.uv.set(x, 1 - y);
+  screenToGalaxy(x, y, shock.world);
+  audio.zap();
+  ui.shock(x * window.innerWidth, y * window.innerHeight, 'holo');
+  ui.flashGesture(label);
+  ui.log(GESTURE_COPY[label][0]);
+}
+
+function setTheme(index) {
+  themeIndex = (index + themes.length) % themes.length;
+  const theme = themes[themeIndex];
+  ui.setTheme(theme.name);
+  ui.flashGesture('theme', 1500, [theme.name, 'Paleta cósmica']);
+  ui.log(`Paleta · ${theme.name}`);
+  audio.beep(1);
+}
+
+function toggleHolo() {
+  holoOn = !holoOn;
+  ui.setHolo(holoOn);
+  ui.log(holoOn ? 'Holograma activado' : 'Holograma desactivado');
+  audio.beep(holoOn ? 3 : 1);
+}
+
+function runScan() {
+  const theme = themes[themeIndex];
+  ui.flashGesture('thumbsup');
+  ui.log('Escaneo espectral');
+  audio.beep(4);
+  ui.scan([
+    ['Flores catalogadas', QUALITY.flowers.toLocaleString('es')],
+    ['Especies', '9'],
+    ['Partículas de polen', QUALITY.pollen.toLocaleString('es')],
+    ['Masa de la singularidad', '4,3 × 10⁶ M☉'],
+    ['Radio del horizonte', `${blackHole.scale.toFixed(2)} u`],
+    ['Temperatura del disco', '1,2 × 10⁷ K'],
+    ['Paleta', theme.name],
+    ['Estado', view.collapse > 0.5 ? 'COLAPSO' : 'Estable'],
+  ]);
+}
+
+function projectToScreen(point) {
+  tmp.v.copy(point).project(camera);
+  return { x: (tmp.v.x * 0.5 + 0.5) * window.innerWidth, y: (-tmp.v.y * 0.5 + 0.5) * window.innerHeight, ndc: tmp.v.clone() };
+}
 
 function enterExperience() {
   if (started) return;
   started = true;
   ui.enter();
   gestures.state.zoom = 1; // la cámara vuela hacia la galaxia
+  ui.log('Sistema en línea');
 }
 
 async function enableHands() {
@@ -89,7 +188,7 @@ async function enableHands() {
   enabling = true;
   const fromIntro = !started;
   if (fromIntro) ui.showSteps();
-  else ui.toast('Activando la cámara…');
+  else ui.toast('Activando sensores ópticos…');
 
   ui.setStep('camera', 'active');
   ui.setStep('model', 'active');
@@ -119,7 +218,8 @@ async function enableHands() {
     ui.setInputMode('hands');
     ui.showPreview(true);
     enterExperience();
-    ui.toast('Cámara lista · levanta una mano', 3600);
+    ui.log('Seguimiento de manos activo');
+    ui.toast('Sensores listos · levanta una mano', 3600);
   } catch (error) {
     tracker.stop();
     if (fromIntro) ui.showIntroError(error.message);
@@ -171,7 +271,7 @@ function saveCapture() {
   ctx.font = `500 ${Math.round(13 * s)}px Inter, system-ui, sans-serif`;
   if ('letterSpacing' in ctx) ctx.letterSpacing = `${(3.5 * s).toFixed(1)}px`;
   const date = new Date().toLocaleDateString('es', { day: 'numeric', month: 'long', year: 'numeric' });
-  ctx.fillText(`GALAXIA DE FLORES · ${date.toUpperCase()}`, x, out.height - 56 * s);
+  ctx.fillText(`GALAXIA DE FLORES · ${themes[themeIndex].name.toUpperCase()} · ${date.toUpperCase()}`, x, out.height - 56 * s);
 
   out.toBlob((blob) => {
     if (!blob) return;
@@ -184,24 +284,54 @@ function saveCapture() {
     link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
     ui.toast('Imagen guardada');
+    ui.log('Captura guardada');
   }, 'image/png');
 
   flash = 0.85;
   audio.shutter();
 }
 
+const MODE_SOUNDS = {
+  [GESTURES.PINCH]: () => audio.chime(),
+  [GESTURES.HORNS]: () => audio.whoosh(),
+  [GESTURES.COLLAPSE]: () => audio.beep(2),
+  [GESTURES.CHARGE]: () => audio.beep(2),
+  [GESTURES.POINT]: () => audio.beep(1),
+};
+
 function handleGestureEvent(event) {
   switch (event.type) {
     case 'mode':
       ui.setGesture(event.to);
       if (event.to === GESTURES.IDLE) manual.bloom = gestures.state.bloom;
-      if (event.to === GESTURES.PINCH) audio.chime();
+      else if (GESTURE_COPY[event.to]) ui.log(GESTURE_COPY[event.to][0]);
+      MODE_SOUNDS[event.to]?.();
+      if (event.to === GESTURES.SHAKA) toggleHolo();
+      if (event.to === GESTURES.THUMBS_UP) runScan();
       break;
     case 'swipe':
       // Mano hacia la derecha → la parte cercana de la galaxia gira hacia la derecha
       view.spin -= clamp(event.velocity, -4, 4) * 0.35;
       ui.flashGesture('swipe');
       audio.chime();
+      break;
+    case 'swipe-vertical':
+      setTheme(themeIndex + event.direction);
+      break;
+    case 'supernova':
+      triggerBurst(1, 'supernova');
+      break;
+    case 'bigbang':
+      triggerBurst(1.25, 'bigbang');
+      break;
+    case 'repulsor':
+      triggerShock(event.x, event.y, 1, 'repulsor');
+      break;
+    case 'shockwave':
+      triggerShock(event.x, event.y, 1.3, 'shockwave');
+      burst.t = 0;
+      burst.power = 0.6 * event.power;
+      audio.boom();
       break;
     case 'capture':
       captureRequested = true;
@@ -217,11 +347,14 @@ ui.on('start', enableHands)
   .on('sound', toggleSound)
   .on('camera', () => (handsActive ? ui.togglePreview() : enableHands()))
   .on('capture', () => (captureRequested = true))
+  .on('holo', toggleHolo)
+  .on('theme', () => setTheme(themeIndex + 1))
   .on('fullscreen', toggleFullscreen)
   .on('help', () => ui.openHelp());
 
 window.addEventListener('keydown', (e) => {
   if (!started || e.metaKey || e.ctrlKey || e.altKey || e.target.closest?.('dialog')) return;
+  if (e.repeat && !['arrowup', 'arrowdown'].includes(e.key.toLowerCase())) return;
   switch (e.key.toLowerCase()) {
     case 'f': toggleFullscreen(); break;
     case 's': case 'p': captureRequested = true; break;
@@ -229,6 +362,12 @@ window.addEventListener('keydown', (e) => {
     case 'c': handsActive ? ui.togglePreview() : enableHands(); break;
     case 'h': ui.toggleChrome(); break;
     case 'r': resetView(); break;
+    case 'n': triggerBurst(1, 'supernova'); break;
+    case 'x': manual.collapse = 1; ui.flashGesture('collapse', 99999); audio.beep(2); break;
+    case 'w': manual.warp = 1; ui.flashGesture('horns', 99999); audio.whoosh(); break;
+    case 't': setTheme(themeIndex + 1); break;
+    case 'g': toggleHolo(); break;
+    case 'j': runScan(); break;
     case '?': case '/': ui.openHelp(); break;
     case 'arrowup': manual.bloom = clamp(manual.bloom + 0.08, 0, 1); break;
     case 'arrowdown': manual.bloom = clamp(manual.bloom - 0.08, 0, 1); break;
@@ -237,7 +376,17 @@ window.addEventListener('keydown', (e) => {
   }
 });
 window.addEventListener('keyup', (e) => {
-  if (e.key === ' ') manual.pulse = 0;
+  const key = e.key.toLowerCase();
+  if (key === ' ') manual.pulse = 0;
+  if (key === 'w') {
+    manual.warp = 0;
+    ui.flashGesture('horns', 10);
+  }
+  if (key === 'x' && manual.collapse) {
+    manual.collapse = 0;
+    ui.flashGesture('collapse', 10);
+    triggerBurst(1.25, 'bigbang');
+  }
 });
 
 document.addEventListener('visibilitychange', () => audio.suspend(document.hidden));
@@ -289,6 +438,7 @@ const releasePointer = (e) => {
 };
 canvas.addEventListener('pointerup', releasePointer);
 canvas.addEventListener('pointercancel', releasePointer);
+canvas.addEventListener('dblclick', () => triggerBurst(1, 'supernova'));
 
 canvas.addEventListener(
   'wheel',
@@ -326,11 +476,13 @@ function frame() {
   }
   const mode = tracking ? g.mode : GESTURES.IDLE;
   const idle = mode === GESTURES.IDLE;
-  const singleHand = !idle && mode !== GESTURES.DUAL;
+  const singleHand = !idle && mode !== GESTURES.DUAL && mode !== GESTURES.CHARGE && mode !== GESTURES.COLLAPSE;
 
   // 2. Objetivos → valores suavizados
   if (idle) manual.bloom = damp(manual.bloom, GALAXY.defaultBloom, 0.12, dt);
   const targetPulse = Math.max(tracking ? g.pulse : 0, manual.pulse);
+  const targetWarp = Math.max(tracking ? g.warp : 0, manual.warp);
+  const targetCollapse = Math.max(tracking ? g.collapse : 0, manual.collapse);
   view.zoom = damp(view.zoom, g.zoom, 3.2, dt);
   view.bloom = damp(view.bloom, idle ? manual.bloom : g.bloom, 2.2, dt);
   view.yaw = damp(view.yaw, singleHand ? g.yaw : 0, 2.5, dt);
@@ -338,12 +490,24 @@ function frame() {
   view.twist = damp(view.twist, g.twist, 5, dt);
   view.tilt = damp(view.tilt, g.tilt, 5, dt);
   view.pulse = damp(view.pulse, targetPulse, targetPulse > view.pulse ? 8 : 2.5, dt);
+  view.warp = damp(view.warp, targetWarp, targetWarp > view.warp ? 1.6 : 3, dt);
+  view.collapse = damp(view.collapse, targetCollapse, targetCollapse > view.collapse ? 1.1 : 5, dt);
+  view.holo = damp(view.holo, holoOn ? 1 : 0, 4, dt);
   view.spin *= Math.exp(-1.1 * dt);
-  view.autoYaw += dt * (CAMERA.autoRotate + view.spin);
+  view.autoYaw += dt * (CAMERA.autoRotate + view.spin + view.warp * 0.9);
+  if (burst.t !== Infinity) burst.t = burst.t > 6 ? Infinity : burst.t + dt;
+  if (shock.t !== Infinity) shock.t = shock.t > 1.4 ? Infinity : shock.t + dt;
+  const burstValue = burstCurve();
 
-  // 3. Cámara en órbita alrededor del núcleo
+  // 3. Cámara en órbita alrededor de la singularidad (el hiperespacio abre el campo de visión)
+  const fov = CAMERA.fov + view.warp * CAMERA.warpFov;
+  if (Math.abs(camera.fov - fov) > 0.01) {
+    camera.fov = fov;
+    camera.updateProjectionMatrix();
+    galaxy.setViewport(window.innerHeight, fov, pixelRatio);
+  }
   const t = clock.elapsedTime;
-  const distance = (CAMERA.baseDistance * framing) / view.zoom;
+  const distance = ((CAMERA.baseDistance * framing) / view.zoom) * (1 - view.warp * 0.25);
   const yaw = view.autoYaw + view.twist + view.yaw;
   const pitch = clamp(CAMERA.basePitch + view.tilt + view.pitch + Math.sin(t * 0.07) * 0.06, 0.08, 1.4);
   camera.position.set(
@@ -352,11 +516,52 @@ function frame() {
     distance * Math.cos(pitch) * Math.cos(yaw),
   );
   camera.lookAt(0, 0, 0);
+  camera.updateMatrixWorld();
 
-  // 4. Render
-  galaxy.update(dt, view.bloom, view.pulse);
-  stars.update(dt);
-  fx.update(dt, { flash, pulse: view.pulse });
+  // 4. Pozo de gravedad del índice
+  const pointer = tracking ? g.pointer : null;
+  if (pointer) {
+    well.screen.x = damp(well.screen.x, pointer.x, 12, dt);
+    well.screen.y = damp(well.screen.y, pointer.y, 12, dt);
+    screenToGalaxy(well.screen.x, well.screen.y, well.world);
+  }
+  view.well = damp(view.well, pointer ? 1 : 0, pointer ? 4 : 2, dt);
+  well.uniform.set(well.world.x, well.world.y, well.world.z, view.well);
+
+  // 5. Onda expansiva
+  const shockProgress = shock.t === Infinity ? -1 : shock.t / 1.4;
+  shockUniform.set(shock.world.x, shock.world.y, shock.world.z, shockProgress);
+  fx.setShock(shock.uv.x, shock.uv.y, shockProgress, shock.power);
+
+  // 6. Paleta
+  const theme = themes[themeIndex];
+  const themeK = 1 - Math.exp(-2.5 * dt);
+  galaxy.setTheme(theme, themeK);
+  blackHole.setTheme(theme, themeK);
+
+  // 7. Render
+  galaxy.update(dt, {
+    bloom: view.bloom,
+    pulse: view.pulse,
+    burst: burstValue,
+    collapse: view.collapse,
+    well: well.uniform,
+    shock: shockUniform,
+  });
+  blackHole.update(dt, camera, { collapse: view.collapse, burst: burstValue });
+  stars.update(dt * (1 + view.warp * 6));
+
+  // Lente gravitacional centrada en la singularidad
+  const center = projectToScreen(new THREE.Vector3());
+  tmp.right.setFromMatrixColumn(camera.matrixWorld, 0).multiplyScalar(blackHole.scale);
+  const edge = projectToScreen(tmp.right);
+  const radiusPx = Math.hypot(edge.x - center.x, edge.y - center.y);
+  fx.setLens(
+    tmp.ndc.set(center.x / window.innerWidth, 1 - center.y / window.innerHeight),
+    radiusPx / window.innerHeight,
+    BLACK_HOLE.lensStrength * (1 + view.collapse * 0.8),
+  );
+  fx.update(dt, { flash, pulse: view.pulse, warp: view.warp, holo: view.holo, burst: burstValue });
   flash = Math.max(0, flash - dt * 2.2);
   fx.render();
   if (captureRequested) {
@@ -364,8 +569,11 @@ function frame() {
     saveCapture();
   }
 
-  // 5. Interfaz
+  // 8. Interfaz holográfica
   ui.updateCursors(tracking ? g.cursors : [], mode, view.zoom, g.captureProgress);
+  ui.drawHolo(tracking ? g.skeletons : [], mode);
+  ui.updateOrb(tracking ? g.orb : null, g.charge);
+  ui.updateSingularity(center.x, center.y, radiusPx, blackHole.scale);
   ui.showHint(handsActive && now - lastHandsAt > 4500);
   ui.setMetrics({
     zoom: view.zoom,
@@ -376,7 +584,7 @@ function frame() {
   });
   audio.setMood(view.bloom, view.zoom);
 
-  // 6. Resolución dinámica: si la GPU no llega a 40 fps, se reduce la densidad de píxeles
+  // 9. Resolución dinámica: si la GPU no llega a 40 fps, se reduce la densidad de píxeles
   perf.frames++;
   perf.time += rawDt;
   if (perf.time >= 1) {
@@ -403,5 +611,6 @@ if (DEBUG) {
     stopSimulation() {
       simulated = null;
     },
+    emit: handleGestureEvent,
   };
 }
