@@ -2,418 +2,199 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Galaxia de Flores</title>
-  <style>
-    :root { --amarillo: #ffd23f; --fondo: #03030a; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; background: var(--fondo); color: #fff8dc; overflow: hidden;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-    #escena { position: fixed; inset: 0; display: block; }
-
-    /* Pantalla inicial */
-    #inicio { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center;
-      justify-content: center; gap: 18px; padding: 16px; text-align: center; z-index: 10;
-      background: radial-gradient(circle at center, rgba(40,30,0,.55), rgba(3,3,10,.95)); }
-    #inicio h1 { font-size: clamp(2rem, 7vw, 4rem); color: var(--amarillo);
-      text-shadow: 0 0 24px rgba(255,210,63,.6); }
-    #inicio p { max-width: 520px; line-height: 1.5; opacity: .85; }
-    #inicio ul { list-style: none; line-height: 1.8; opacity: .9; }
-    #btnIniciar { font-size: 1.1rem; padding: 14px 30px; border: 0; border-radius: 999px; cursor: pointer;
-      background: var(--amarillo); color: #2b1d00; font-weight: 700;
-      box-shadow: 0 0 30px rgba(255,210,63,.5); }
-    #btnIniciar:disabled { opacity: .6; cursor: wait; }
-    #error { color: #ff8a80; max-width: 520px; }
-
-    /* HUD */
-    #hud { position: fixed; top: 16px; left: 16px; z-index: 5; padding: 12px 16px; border-radius: 12px;
-      background: rgba(10,10,20,.55); backdrop-filter: blur(6px); font-size: .9rem; line-height: 1.6;
-      border: 1px solid rgba(255,210,63,.25); }
-    #hud b { color: var(--amarillo); }
-
-    /* Vista previa de la cámara */
-    #preview { position: fixed; right: 16px; bottom: 16px; z-index: 5; width: min(240px, 38vw);
-      aspect-ratio: 4 / 3; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,210,63,.4); }
-    #preview video, #preview canvas { position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover; transform: scaleX(-1); }
-    .oculto { display: none !important; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Flora — Galaxia de flores</title>
+  <meta name="description" content="Una galaxia de miles de flores amarillas que controlas con tus manos mediante visión artificial en tiempo real." />
+  <meta name="theme-color" content="#050507" />
+  <meta property="og:title" content="Flora — Galaxia de flores" />
+  <meta property="og:description" content="Experiencia interactiva: una galaxia de flores amarillas guiada por el movimiento de tus manos." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
   <script type="importmap">
-    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
   </script>
+  <script type="module" src="js/main.js"></script>
 </head>
-<body>
-  <canvas id="escena"></canvas>
+<body class="is-intro" data-input="none">
+  <!-- Iconografía -->
+  <svg class="sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-flora" viewBox="0 0 64 64">
+      <g fill="none" stroke="currentColor" stroke-width="1.3">
+        <ellipse cx="32" cy="17" rx="6.5" ry="13" />
+        <ellipse cx="32" cy="17" rx="6.5" ry="13" transform="rotate(45 32 32)" />
+        <ellipse cx="32" cy="17" rx="6.5" ry="13" transform="rotate(90 32 32)" />
+        <ellipse cx="32" cy="17" rx="6.5" ry="13" transform="rotate(135 32 32)" />
+        <ellipse cx="32" cy="17" rx="6.5" ry="13" transform="rotate(180 32 32)" />
+        <ellipse cx="32" cy="17" rx="6.5" ry="13" transform="rotate(225 32 32)" />
+        <ellipse cx="32" cy="17" rx="6.5" ry="13" transform="rotate(270 32 32)" />
+        <ellipse cx="32" cy="17" rx="6.5" ry="13" transform="rotate(315 32 32)" />
+      </g>
+      <circle cx="32" cy="32" r="4.5" fill="currentColor" />
+    </symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></symbol>
+    <symbol id="i-sound-off" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /><path d="m22 9-6 6M16 9l6 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><rect x="2.5" y="6" width="13" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="m15.5 10.5 6-3.5v10l-6-3.5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /></symbol>
+    <symbol id="i-aperture" viewBox="0 0 24 24"><path d="M3.5 8.5A1.5 1.5 0 0 1 5 7h2.5L9 5h6l1.5 2H19a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5" /></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.4v.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /><circle cx="12" cy="16.8" r=".9" fill="currentColor" /></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.5" /></symbol>
+    <symbol id="i-zoom" viewBox="0 0 24 24"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+    <symbol id="i-bloom" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></symbol>
+    <symbol id="i-contract" viewBox="0 0 24 24"><path d="M4 4l5 5M9 5v4H5M20 4l-5 5M15 5v4h4M4 20l5-5M9 19v-4H5M20 20l-5-5M15 19v-4h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3c.5 4.2 2.8 6.5 7 7-4.2.5-6.5 2.8-7 7-.5-4.2-2.8-6.5-7-7 4.2-.5 6.5-2.8 7-7z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /><path d="M19 17v4M17 19h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></symbol>
+    <symbol id="i-orbit" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5" transform="rotate(-18 12 12)" /><circle cx="12" cy="12" r="2.2" fill="none" stroke="currentColor" stroke-width="1.5" /></symbol>
+  </svg>
 
-  <div id="inicio">
-    <h1>Galaxia de Flores ✿</h1>
-    <p>Una galaxia de flores amarillas que controlas con tus manos a través de la cámara.</p>
-    <ul>
-      <li>🙌 <b>Dos manos:</b> sepáralas para ampliar, júntalas para reducir</li>
-      <li>✋ <b>Mano abierta</b> = grande · ✊ <b>puño</b> = pequeña</li>
-      <li>👉 <b>Mueve la mano</b> para girar la galaxia</li>
-      <li>🤏 <b>Pellizco</b> (pulgar + índice) para hacer brillar las flores</li>
+  <canvas id="stage" aria-label="Galaxia de flores interactiva"></canvas>
+
+  <!-- Introducción -->
+  <section class="intro" id="intro" aria-labelledby="intro-title">
+    <div class="intro__card">
+      <svg class="intro__mark" aria-hidden="true"><use href="#i-flora" /></svg>
+      <p class="eyebrow">Experiencia interactiva · Visión artificial</p>
+      <h1 class="intro__title" id="intro-title">Flora</h1>
+      <p class="intro__subtitle">Galaxia de flores</p>
+      <span class="rule" aria-hidden="true"></span>
+      <p class="intro__lead">Miles de flores amarillas orbitando en el espacio, guiadas por el movimiento de tus manos.</p>
+      <div class="intro__actions">
+        <button class="btn btn--primary" id="btn-start" type="button">
+          <svg aria-hidden="true"><use href="#i-video" /></svg>
+          <span id="btn-start-label">Comenzar con cámara</span>
+        </button>
+        <button class="btn btn--ghost" id="btn-explore" type="button">Explorar sin cámara</button>
+      </div>
+      <ol class="steps" id="steps" hidden>
+        <li data-step="camera"><span class="steps__icon"></span><span>Cámara</span><span class="steps__state">En espera</span></li>
+        <li data-step="model"><span class="steps__icon"></span><span>Modelo de visión artificial</span><span class="steps__state">En espera</span></li>
+        <li data-step="ready"><span class="steps__icon"></span><span>Calibración</span><span class="steps__state">En espera</span></li>
+      </ol>
+      <p class="intro__error" id="intro-error" role="alert" hidden></p>
+      <p class="intro__privacy"><svg aria-hidden="true"><use href="#i-lock" /></svg>Procesamiento 100 % local. Ninguna imagen sale de tu dispositivo.</p>
+    </div>
+    <p class="intro__credit">WebGL · Three.js · MediaPipe</p>
+  </section>
+
+  <!-- Barra superior -->
+  <header class="topbar hud">
+    <div class="brand">
+      <svg class="brand__mark" aria-hidden="true"><use href="#i-flora" /></svg>
+      <div>
+        <span class="brand__name">Flora</span>
+        <span class="brand__sub">Galaxia de flores</span>
+      </div>
+    </div>
+    <dl class="telemetry glass" aria-label="Telemetría">
+      <div><dt>Zoom</dt><dd id="t-zoom">1.00×</dd></div>
+      <div><dt>Floración</dt><dd id="t-bloom">62%</dd></div>
+      <div class="t-hands"><dt>Manos</dt><dd id="t-hands">—</dd></div>
+      <div class="t-ai"><dt>IA</dt><dd id="t-ai">—</dd></div>
+      <div class="t-fps"><dt>FPS</dt><dd id="t-fps">60</dd></div>
+    </dl>
+  </header>
+
+  <!-- Guía de gestos -->
+  <aside class="guide glass hud" aria-label="Guía de gestos">
+    <p class="eyebrow guide__title">Gestos</p>
+    <ul class="guide__list" data-for="hands">
+      <li data-gesture="dual"><svg aria-hidden="true"><use href="#i-zoom" /></svg><div><strong>Dos manos</strong><span>Separa para acercar · gira para rotar</span></div></li>
+      <li data-gesture="open"><svg aria-hidden="true"><use href="#i-bloom" /></svg><div><strong>Mano abierta</strong><span>La galaxia florece</span></div></li>
+      <li data-gesture="fist"><svg aria-hidden="true"><use href="#i-contract" /></svg><div><strong>Puño</strong><span>La galaxia se recoge</span></div></li>
+      <li data-gesture="pinch"><svg aria-hidden="true"><use href="#i-spark" /></svg><div><strong>Pellizco</strong><span>Ondas de resplandor</span></div></li>
+      <li data-gesture="swipe"><svg aria-hidden="true"><use href="#i-orbit" /></svg><div><strong>Barrido rápido</strong><span>Impulsa la rotación</span></div></li>
+      <li data-gesture="victory"><svg aria-hidden="true"><use href="#i-aperture" /></svg><div><strong>Señal de paz</strong><span>Mantén para capturar</span></div></li>
     </ul>
-    <button id="btnIniciar">Iniciar cámara</button>
-    <p id="error"></p>
+    <ul class="guide__list" data-for="pointer" hidden>
+      <li><svg aria-hidden="true"><use href="#i-orbit" /></svg><div><strong>Arrastrar</strong><span>Orbitar la galaxia</span></div></li>
+      <li><svg aria-hidden="true"><use href="#i-zoom" /></svg><div><strong>Rueda · pellizco táctil</strong><span>Acercar y alejar</span></div></li>
+      <li><svg aria-hidden="true"><use href="#i-spark" /></svg><div><strong>Mantener pulsado</strong><span>Ondas de resplandor</span></div></li>
+      <li><svg aria-hidden="true"><use href="#i-bloom" /></svg><div><strong>Flechas ↑ ↓</strong><span>Floración</span></div></li>
+    </ul>
+  </aside>
+
+  <!-- Indicador de zoom -->
+  <div class="gauge hud" aria-hidden="true">
+    <span class="gauge__value">×<b id="g-value">1.0</b></span>
+    <div class="gauge__track"><div class="gauge__fill" id="g-fill"></div><div class="gauge__thumb" id="g-thumb"></div></div>
+    <span class="gauge__cap">Zoom</span>
   </div>
 
-  <div id="hud" class="oculto">
-    Estado: <b id="estado">cargando…</b><br />
-    Gesto: <b id="gesto">—</b><br />
-    Zoom: <b id="zoom">100%</b>
+  <!-- Gesto actual -->
+  <div class="now is-empty hud" id="now" aria-live="polite">
+    <p class="now__title" id="now-title"></p>
+    <p class="now__caption" id="now-caption"></p>
   </div>
 
-  <div id="preview" class="oculto">
+  <!-- Controles -->
+  <nav class="dock glass hud" aria-label="Controles">
+    <button class="dock__btn" type="button" data-action="sound" aria-pressed="false" aria-label="Sonido ambiental" data-tip="Sonido ambiental · M"><svg aria-hidden="true"><use href="#i-sound-off" /></svg></button>
+    <button class="dock__btn" type="button" data-action="camera" aria-pressed="false" aria-label="Cámara" data-tip="Activar cámara · C"><svg aria-hidden="true"><use href="#i-video" /></svg></button>
+    <button class="dock__btn" type="button" data-action="capture" aria-label="Guardar imagen" data-tip="Guardar imagen · S"><svg aria-hidden="true"><use href="#i-aperture" /></svg></button>
+    <span class="dock__sep" aria-hidden="true"></span>
+    <button class="dock__btn" type="button" data-action="fullscreen" aria-label="Pantalla completa" data-tip="Pantalla completa · F"><svg aria-hidden="true"><use href="#i-expand" /></svg></button>
+    <button class="dock__btn" type="button" data-action="help" aria-label="Ayuda" data-tip="Ayuda · ?"><svg aria-hidden="true"><use href="#i-help" /></svg></button>
+  </nav>
+
+  <!-- Vista de la cámara -->
+  <figure class="preview hud" id="preview" hidden>
     <video id="video" playsinline muted></video>
-    <canvas id="manos"></canvas>
+    <canvas id="preview-canvas"></canvas>
+    <figcaption><span class="live-dot"></span>Visión IA<span class="preview__status" id="preview-status">buscando manos</span></figcaption>
+  </figure>
+
+  <!-- Cursores de las manos -->
+  <div class="cursors" aria-hidden="true">
+    <svg class="link" id="link"><line id="link-line" /></svg>
+    <div class="link-label" id="link-label">×1.00</div>
+    <div class="cursor"><svg viewBox="0 0 60 60"><circle class="cursor__halo" cx="30" cy="30" r="26" /><circle class="cursor__ring" cx="30" cy="30" r="26" /><circle class="cursor__progress" cx="30" cy="30" r="26" /></svg><span class="cursor__dot"></span></div>
+    <div class="cursor"><svg viewBox="0 0 60 60"><circle class="cursor__halo" cx="30" cy="30" r="26" /><circle class="cursor__ring" cx="30" cy="30" r="26" /><circle class="cursor__progress" cx="30" cy="30" r="26" /></svg><span class="cursor__dot"></span></div>
   </div>
 
-  <script type="module">
-    import * as THREE from "three";
-    import { HandLandmarker, FilesetResolver }
-      from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+  <div class="toast glass" id="toast" role="status"><span class="toast__dot"></span><span id="toast-text"></span></div>
 
-    // ---------------------------------------------------------------
-    // 1. Escena Three.js
-    // ---------------------------------------------------------------
-    const canvas = document.getElementById("escena");
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight);
+  <!-- Ayuda -->
+  <dialog class="help" id="help" aria-labelledby="help-title">
+    <form method="dialog"><button class="help__close" aria-label="Cerrar">×</button></form>
+    <p class="eyebrow">Guía</p>
+    <h2 id="help-title">Cómo interactuar</h2>
+    <div class="help__grid">
+      <section>
+        <h3>Con tus manos</h3>
+        <ul>
+          <li><b>Dos manos</b> — sepáralas para acercarte, júntalas para alejarte. Gíralas como un volante para rotar la galaxia.</li>
+          <li><b>Mano abierta</b> — la galaxia florece y se expande.</li>
+          <li><b>Puño</b> — la galaxia se recoge como un capullo.</li>
+          <li><b>Pellizco</b> (pulgar + índice) — ondas de luz recorren las flores.</li>
+          <li><b>Barrido rápido</b> — impulsa la rotación.</li>
+          <li><b>Señal de paz</b> sostenida — guarda una imagen.</li>
+        </ul>
+      </section>
+      <section>
+        <h3>Teclado</h3>
+        <ul class="keys">
+          <li><kbd>F</kbd>Pantalla completa</li>
+          <li><kbd>S</kbd>Guardar imagen</li>
+          <li><kbd>M</kbd>Sonido ambiental</li>
+          <li><kbd>C</kbd>Cámara</li>
+          <li><kbd>H</kbd>Ocultar interfaz</li>
+          <li><kbd>R</kbd>Restablecer vista</li>
+          <li><kbd>↑</kbd><kbd>↓</kbd>Floración</li>
+          <li><kbd>Espacio</kbd>Resplandor</li>
+        </ul>
+      </section>
+    </div>
+    <p class="help__foot">Privacidad: el video se analiza en tu navegador con MediaPipe. Ninguna imagen se envía a ningún servidor.</p>
+  </dialog>
 
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x03030a);
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
-    camera.position.set(0, 12, 17);
-    camera.lookAt(0, 0, 0);
-
-    // Textura de flor dibujada en un canvas: 6 pétalos amarillos + centro naranja
-    function crearTexturaFlor() {
-      const size = 128, c = document.createElement("canvas");
-      c.width = c.height = size;
-      const ctx = c.getContext("2d");
-      ctx.translate(size / 2, size / 2);
-      for (let i = 0; i < 6; i++) {
-        ctx.save();
-        ctx.rotate((i / 6) * Math.PI * 2);
-        const g = ctx.createLinearGradient(0, 0, 0, -56);
-        g.addColorStop(0, "#ffb300");
-        g.addColorStop(1, "#fff59d");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.ellipse(0, -30, 15, 29, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-      const centro = ctx.createRadialGradient(0, 0, 2, 0, 0, 16);
-      centro.addColorStop(0, "#ff8f00");
-      centro.addColorStop(1, "#6d3b00");
-      ctx.fillStyle = centro;
-      ctx.beginPath();
-      ctx.arc(0, 0, 15, 0, Math.PI * 2);
-      ctx.fill();
-      return new THREE.CanvasTexture(c);
-    }
-
-    // Textura de brillo radial para el núcleo
-    function crearTexturaBrillo() {
-      const size = 256, c = document.createElement("canvas");
-      c.width = c.height = size;
-      const ctx = c.getContext("2d");
-      const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-      g.addColorStop(0, "rgba(255,240,180,1)");
-      g.addColorStop(0.25, "rgba(255,200,60,.55)");
-      g.addColorStop(1, "rgba(255,160,0,0)");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, size, size);
-      return new THREE.CanvasTexture(c);
-    }
-
-    // Galaxia espiral de flores
-    const galaxia = new THREE.Group();
-    scene.add(galaxia);
-
-    const PARAM = { cantidad: 6000, radio: 10, brazos: 5, giro: 0.9, dispersion: 0.28 };
-    const posiciones = new Float32Array(PARAM.cantidad * 3);
-    const colores = new Float32Array(PARAM.cantidad * 3);
-    const tamanos = new Float32Array(PARAM.cantidad);
-    const rotaciones = new Float32Array(PARAM.cantidad);
-    const colorCentro = new THREE.Color("#ffc400");
-    const colorBorde = new THREE.Color("#fff6a8");
-
-    for (let i = 0; i < PARAM.cantidad; i++) {
-      const r = Math.pow(Math.random(), 1.4) * PARAM.radio;
-      const brazo = ((i % PARAM.brazos) / PARAM.brazos) * Math.PI * 2;
-      const angulo = brazo + r * PARAM.giro;
-      const desv = () => Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * PARAM.dispersion * (r + 0.6);
-      posiciones[i * 3]     = Math.cos(angulo) * r + desv();
-      posiciones[i * 3 + 1] = desv() * 0.35;
-      posiciones[i * 3 + 2] = Math.sin(angulo) * r + desv();
-
-      const col = colorCentro.clone().lerp(colorBorde, r / PARAM.radio);
-      colores[i * 3] = col.r; colores[i * 3 + 1] = col.g; colores[i * 3 + 2] = col.b;
-      tamanos[i] = 0.3 + Math.random() * 0.75 + (r / PARAM.radio) * 0.35;
-      rotaciones[i] = Math.random() * Math.PI * 2;
-    }
-
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.BufferAttribute(posiciones, 3));
-    geo.setAttribute("aColor", new THREE.BufferAttribute(colores, 3));
-    geo.setAttribute("aSize", new THREE.BufferAttribute(tamanos, 1));
-    geo.setAttribute("aRot", new THREE.BufferAttribute(rotaciones, 1));
-
-    const uniforms = {
-      uTex: { value: crearTexturaFlor() },
-      uTime: { value: 0 },
-      uPixelRatio: { value: renderer.getPixelRatio() },
-      uBrillo: { value: 0 },
-    };
-
-    const materialFlores = new THREE.ShaderMaterial({
-      uniforms,
-      transparent: true,
-      depthWrite: false,
-      vertexShader: /* glsl */`
-        uniform float uTime; uniform float uPixelRatio; uniform float uBrillo;
-        attribute float aSize; attribute float aRot; attribute vec3 aColor;
-        varying vec3 vColor; varying float vRot;
-        void main() {
-          vec4 mv = modelViewMatrix * vec4(position, 1.0);
-          gl_Position = projectionMatrix * mv;
-          float pulso = 1.0 + uBrillo * 0.35 * sin(uTime * 6.0 + aRot * 4.0);
-          gl_PointSize = aSize * pulso * uPixelRatio * (220.0 / -mv.z);
-          vColor = aColor;
-          // Cada flor gira sobre sí misma, la mitad en un sentido y la otra mitad al revés
-          vRot = aRot + uTime * (aRot > 3.14159 ? 0.4 : -0.4);
-        }`,
-      fragmentShader: /* glsl */`
-        uniform sampler2D uTex; uniform float uBrillo;
-        varying vec3 vColor; varying float vRot;
-        void main() {
-          vec2 uv = gl_PointCoord - 0.5;
-          float c = cos(vRot), s = sin(vRot);
-          uv = mat2(c, -s, s, c) * uv + 0.5;
-          vec4 t = texture2D(uTex, uv);
-          if (t.a < 0.05) discard;
-          vec3 col = t.rgb * vColor * 1.25 + uBrillo * 0.35;
-          gl_FragColor = vec4(col, t.a);
-        }`,
-    });
-    galaxia.add(new THREE.Points(geo, materialFlores));
-
-    // Núcleo brillante
-    const nucleo = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: crearTexturaBrillo(), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true,
-    }));
-    nucleo.scale.set(7, 7, 1);
-    galaxia.add(nucleo);
-
-    // Fondo de estrellas
-    const estrellasGeo = new THREE.BufferGeometry();
-    const estrellasPos = new Float32Array(2500 * 3);
-    for (let i = 0; i < estrellasPos.length; i += 3) {
-      const v = new THREE.Vector3().randomDirection().multiplyScalar(40 + Math.random() * 60);
-      estrellasPos[i] = v.x; estrellasPos[i + 1] = v.y; estrellasPos[i + 2] = v.z;
-    }
-    estrellasGeo.setAttribute("position", new THREE.BufferAttribute(estrellasPos, 3));
-    const estrellas = new THREE.Points(estrellasGeo,
-      new THREE.PointsMaterial({ color: 0xfff3c4, size: 0.18, transparent: true, opacity: 0.8 }));
-    scene.add(estrellas);
-
-    // ---------------------------------------------------------------
-    // 2. Estado de gestos (valores objetivo + valores suavizados)
-    // ---------------------------------------------------------------
-    const objetivo = { escala: 1, rotX: 0, rotY: 0, brillo: 0 };
-    const actual = { escala: 1, rotX: 0, rotY: 0, brillo: 0 };
-    let giroAuto = 0;
-    let zoomRueda = 1; // respaldo con el mouse
-
-    const lerp = (a, b, t) => a + (b - a) * t;
-    const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
-    const mapear = (v, a, b, c, d) => c + (clamp(v, a, b) - a) * (d - c) / (b - a);
-    const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
-
-    window.addEventListener("wheel", (e) => {
-      zoomRueda = clamp(zoomRueda * (e.deltaY > 0 ? 0.92 : 1.08), 0.3, 4);
-    }, { passive: true });
-
-    // Centro de la palma: promedio de muñeca y bases de los dedos
-    function centroPalma(m) {
-      const ids = [0, 5, 9, 13, 17];
-      return {
-        x: ids.reduce((s, i) => s + m[i].x, 0) / ids.length,
-        y: ids.reduce((s, i) => s + m[i].y, 0) / ids.length,
-      };
-    }
-
-    // Apertura de la mano: ~0.9 con puño, ~2.0 con la mano abierta
-    function aperturaMano(m) {
-      const palma = dist(m[0], m[9]) || 1e-6;
-      const puntas = [4, 8, 12, 16, 20];
-      return puntas.reduce((s, i) => s + dist(m[i], m[0]), 0) / puntas.length / palma;
-    }
-
-    function estaPellizcando(m) {
-      return dist(m[4], m[8]) / (dist(m[0], m[9]) || 1e-6) < 0.35;
-    }
-
-    const $gesto = document.getElementById("gesto");
-    const $estado = document.getElementById("estado");
-    const $zoom = document.getElementById("zoom");
-
-    function procesarManos(manos) {
-      if (manos.length === 0) {
-        objetivo.escala = 1; objetivo.rotX = 0; objetivo.rotY = 0; objetivo.brillo = 0;
-        $estado.textContent = "busca tus manos 👀";
-        $gesto.textContent = "—";
-        return;
-      }
-      $estado.textContent = manos.length === 2 ? "2 manos detectadas" : "1 mano detectada";
-
-      const pellizco = manos.some(estaPellizcando);
-      objetivo.brillo = pellizco ? 1 : 0;
-
-      let nombre;
-      if (manos.length >= 2) {
-        // Dos manos: la distancia entre palmas controla el zoom
-        const a = centroPalma(manos[0]), b = centroPalma(manos[1]);
-        objetivo.escala = mapear(dist(a, b), 0.12, 0.75, 0.35, 3.2);
-        const medio = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
-        objetivo.rotY = (0.5 - medio.x) * 2.5; // (0.5 - x) porque la imagen está en espejo
-        objetivo.rotX = (medio.y - 0.5) * 1.6;
-        nombre = objetivo.escala > 1.1 ? "🙌 separando → ampliar" : "🙌 juntando → reducir";
-      } else {
-        // Una mano: abierta = grande, puño = pequeña; la posición gira la galaxia
-        const m = manos[0];
-        const ap = aperturaMano(m);
-        objetivo.escala = mapear(ap, 1.0, 1.9, 0.45, 2.2);
-        const p = centroPalma(m);
-        objetivo.rotY = (0.5 - p.x) * 2.5;
-        objetivo.rotX = (p.y - 0.5) * 1.6;
-        nombre = ap > 1.55 ? "✋ mano abierta" : ap < 1.2 ? "✊ puño" : "🖐️ mano";
-      }
-      if (pellizco) nombre += " · 🤏 brillo";
-      $gesto.textContent = nombre;
-    }
-
-    // ---------------------------------------------------------------
-    // 3. Cámara + MediaPipe HandLandmarker
-    // ---------------------------------------------------------------
-    const video = document.getElementById("video");
-    const lienzoManos = document.getElementById("manos");
-    const ctxManos = lienzoManos.getContext("2d");
-    let detector = null;
-    let ultimoTiempoVideo = -1;
-
-    const CONEXIONES = [
-      [0,1],[1,2],[2,3],[3,4], [0,5],[5,6],[6,7],[7,8], [5,9],[9,10],[10,11],[11,12],
-      [9,13],[13,14],[14,15],[15,16], [13,17],[17,18],[18,19],[19,20], [0,17],
-    ];
-
-    function dibujarManos(manos) {
-      const w = lienzoManos.width = video.videoWidth;
-      const h = lienzoManos.height = video.videoHeight;
-      ctxManos.clearRect(0, 0, w, h);
-      ctxManos.lineWidth = Math.max(2, w / 200);
-      ctxManos.strokeStyle = "rgba(255,210,63,.9)";
-      ctxManos.fillStyle = "#fff59d";
-      for (const m of manos) {
-        for (const [a, b] of CONEXIONES) {
-          ctxManos.beginPath();
-          ctxManos.moveTo(m[a].x * w, m[a].y * h);
-          ctxManos.lineTo(m[b].x * w, m[b].y * h);
-          ctxManos.stroke();
-        }
-        for (const p of m) {
-          ctxManos.beginPath();
-          ctxManos.arc(p.x * w, p.y * h, Math.max(3, w / 120), 0, Math.PI * 2);
-          ctxManos.fill();
-        }
-      }
-    }
-
-    async function iniciar() {
-      const btn = document.getElementById("btnIniciar");
-      const $error = document.getElementById("error");
-      btn.disabled = true;
-      btn.textContent = "Cargando…";
-      $error.textContent = "";
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }, audio: false,
-        });
-        video.srcObject = stream;
-        await video.play();
-
-        const vision = await FilesetResolver.forVisionTasks(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
-        detector = await HandLandmarker.createFromOptions(vision, {
-          baseOptions: {
-            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
-            delegate: "GPU",
-          },
-          runningMode: "VIDEO",
-          numHands: 2,
-        });
-
-        document.getElementById("inicio").classList.add("oculto");
-        document.getElementById("hud").classList.remove("oculto");
-        document.getElementById("preview").classList.remove("oculto");
-      } catch (err) {
-        console.error(err);
-        btn.disabled = false;
-        btn.textContent = "Reintentar";
-        $error.textContent = err && err.name === "NotAllowedError"
-          ? "No diste permiso para usar la cámara. Actívalo en tu navegador y vuelve a intentarlo."
-          : "No se pudo iniciar: " + (err && err.message ? err.message : "error de red al descargar el modelo") +
-            ". Recuerda abrir la página con https:// o http://localhost.";
-      }
-    }
-    document.getElementById("btnIniciar").addEventListener("click", iniciar);
-
-    // ---------------------------------------------------------------
-    // 4. Bucle de animación
-    // ---------------------------------------------------------------
-    const reloj = new THREE.Clock();
-    function animar() {
-      requestAnimationFrame(animar);
-      const dt = Math.min(reloj.getDelta(), 0.05);
-      uniforms.uTime.value += dt;
-
-      // Detectar manos solo cuando hay un nuevo cuadro de video
-      if (detector && video.readyState >= 2 && video.currentTime !== ultimoTiempoVideo) {
-        ultimoTiempoVideo = video.currentTime;
-        const res = detector.detectForVideo(video, performance.now());
-        const manos = res.landmarks || [];
-        procesarManos(manos);
-        dibujarManos(manos);
-      }
-
-      // Suavizado de todos los valores
-      const k = 1 - Math.pow(0.001, dt); // independiente de los FPS
-      actual.escala = lerp(actual.escala, objetivo.escala * zoomRueda, k);
-      actual.rotX = lerp(actual.rotX, objetivo.rotX, k);
-      actual.rotY = lerp(actual.rotY, objetivo.rotY, k);
-      actual.brillo = lerp(actual.brillo, objetivo.brillo, k);
-
-      giroAuto += dt * 0.08;
-      galaxia.scale.setScalar(actual.escala);
-      galaxia.rotation.set(actual.rotX, giroAuto + actual.rotY, 0);
-      uniforms.uBrillo.value = actual.brillo;
-      nucleo.material.opacity = 0.8 + actual.brillo * 0.2;
-      estrellas.rotation.y += dt * 0.005;
-
-      $zoom.textContent = Math.round(actual.escala * 100) + "%";
-      renderer.render(scene, camera);
-    }
-    animar();
-
-    window.addEventListener("resize", () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
+  <noscript><p class="noscript">Flora necesita JavaScript para funcionar.</p></noscript>
 </body>
 </html>
